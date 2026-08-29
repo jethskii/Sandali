@@ -119,10 +119,106 @@
     text-align: center;
     font-size: 20px;
     color: var(--neon-yellow);
-    margin: 10px 0 18px;
+    margin: 10px 0 4px;
     text-shadow: 1px 1px 0 var(--ink);
     min-height: 24px;
   }
+
+  .mini-link {
+    display: block;
+    margin: 0 auto 16px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--neon-cyan);
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    text-decoration: underline;
+    padding: 2px 0;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .mini-link:active { transform: none; }
+
+  /* ---------- Stats bar ---------- */
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .stat {
+    flex: 1;
+    text-align: center;
+    background: var(--navy-light);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--shadow-hard);
+    padding: 8px 4px;
+  }
+
+  .stat-num {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--neon-yellow);
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 13px;
+    color: var(--paper-dim);
+    margin-top: 4px;
+  }
+
+  /* ---------- Goal bar ---------- */
+  .goal-row {
+    margin-bottom: 16px;
+  }
+
+  .goal-bar {
+    height: 16px;
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    overflow: hidden;
+  }
+
+  .goal-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+    transition: width 0.3s ease;
+  }
+
+  .goal-text-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: var(--paper-dim);
+    margin-top: 4px;
+  }
+
+  .mini-btn {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    padding: 3px 9px;
+    border: 2px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--shadow-hard);
+    background: var(--neon-yellow);
+    cursor: pointer;
+    min-height: 28px;
+  }
+
+  .goal-edit {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .goal-edit[hidden] { display: none; }
+
+  .goal-edit input { flex: 1; margin-bottom: 0; }
 
   /* ---------- Form fields ---------- */
   .field {
@@ -138,7 +234,8 @@
   }
 
   input[type="text"],
-  input[type="number"] {
+  input[type="number"],
+  select {
     width: 100%;
     font-family: 'VT323', monospace;
     font-size: 20px;
@@ -150,10 +247,17 @@
     outline: none;
   }
 
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--neon-pink);
+  }
+
   .duration-row {
     display: flex;
     gap: 12px;
   }
+
+  .duration-row[hidden] { display: none; }
 
   .duration-row .field {
     flex: 1;
@@ -161,9 +265,47 @@
   }
 
   input:focus-visible,
-  button:focus-visible {
+  button:focus-visible,
+  select:focus-visible {
     outline: 3px dashed var(--neon-cyan);
     outline-offset: 3px;
+  }
+
+  /* ---------- Color tag picker ---------- */
+  .color-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .color-swatch {
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--shadow-hard);
+    cursor: pointer;
+    padding: 0;
+    min-height: 0;
+  }
+
+  .color-swatch.selected {
+    outline: 3px solid var(--paper);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Pomodoro switch ---------- */
+  .switch-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: var(--paper-dim);
+    cursor: pointer;
+  }
+
+  .switch-label input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--neon-pink);
   }
 
   /* ---------- Timer capsule ---------- */
@@ -265,13 +407,14 @@
   .pill-btn {
     border-radius: 999px;
     padding: 12px 20px;
+    min-height: 44px;
   }
 
   #startBtn { background: var(--neon-green); }
   #pauseBtn { background: var(--neon-cyan); }
   #resetBtn { background: var(--neon-pink); color: var(--paper); }
 
-  /* ---------- Session log ---------- */
+  /* ---------- Session log / settings dropdowns ---------- */
   .log-section {
     margin-top: 22px;
     border-top: 3px solid var(--ink);
@@ -289,6 +432,7 @@
     text-shadow: 1px 1px 0 var(--ink);
     padding: 12px 14px;
     margin: 0;
+    min-height: 44px;
   }
 
   .log-toggle .chevron {
@@ -329,11 +473,32 @@
   #sessionLog li .log-subject {
     color: var(--neon-yellow);
     font-size: 18px;
+    display: flex;
+    align-items: center;
+  }
+
+  .log-chip {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    margin-right: 7px;
+    border: 1px solid var(--ink);
+    flex-shrink: 0;
   }
 
   #sessionLog li .log-meta {
     color: var(--paper-dim);
     font-size: 15px;
+  }
+
+  @keyframes new-entry-pulse {
+    0%   { box-shadow: 3px 3px 0 var(--shadow-hard), 0 0 0 rgba(255, 224, 102, 0); }
+    30%  { box-shadow: 3px 3px 0 var(--shadow-hard), 0 0 16px rgba(255, 224, 102, 0.9); }
+    100% { box-shadow: 3px 3px 0 var(--shadow-hard), 0 0 0 rgba(255, 224, 102, 0); }
+  }
+
+  #sessionLog li.new-entry {
+    animation: new-entry-pulse 1.4s ease-out;
   }
 
   .empty-log {
@@ -342,6 +507,15 @@
     text-align: center;
     padding: 6px 0;
   }
+
+  .settings-panel {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .settings-panel[hidden] { display: none; }
 
   /* ---------- Name modal ---------- */
   .modal-overlay {
@@ -385,18 +559,21 @@
     margin-bottom: 14px;
   }
 
-  /* ---------- Sound toggle ---------- */
-  .sound-toggle {
+  /* ---------- Fixed corner toggles ---------- */
+  .corner-toggle {
     position: fixed;
-    right: 16px;
     bottom: 16px;
     z-index: 40;
     font-size: 11px;
     padding: 10px 12px;
     background: var(--neon-yellow);
+    min-height: 44px;
   }
 
-  .sound-toggle.is-on { background: var(--neon-green); }
+  .corner-toggle.is-on { background: var(--neon-green); }
+
+  #soundToggle { right: 16px; }
+  #ambienceToggle { left: 16px; }
 
   /* ---------- Responsive ---------- */
   @media (max-width: 480px) {
@@ -405,6 +582,7 @@
     .tagline { font-size: 16px; }
     button { font-size: 10px; padding: 10px 10px; }
     .duration-row { flex-direction: row; }
+    .stat-num { font-size: 12px; }
   }
 
   @media (max-width: 360px) {
@@ -430,7 +608,8 @@
 ></video>
 <div class="bg-tint" aria-hidden="true"></div>
 
-<button type="button" id="soundToggle" class="sound-toggle" aria-pressed="false">🔈 SOUND OFF</button>
+<button type="button" id="soundToggle" class="corner-toggle" aria-pressed="false">🔈 SOUND OFF</button>
+<button type="button" id="ambienceToggle" class="corner-toggle" aria-pressed="false">🎵 AMBIENCE OFF</button>
 
 <main class="card">
   <header class="app-header">
@@ -439,6 +618,34 @@
   </header>
 
   <p class="greeting" id="greeting" aria-live="polite"></p>
+  <button type="button" id="editNameBtn" class="mini-link">✏️ not you? change name</button>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-num" id="streakNum">0</span>
+      <span class="stat-label">🔥 day streak</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="todayNum">0m</span>
+      <span class="stat-label">today</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="weekNum">0m</span>
+      <span class="stat-label">this week</span>
+    </div>
+  </div>
+
+  <div class="goal-row">
+    <div class="goal-bar"><div class="goal-fill" id="goalFill"></div></div>
+    <div class="goal-text-row">
+      <span id="goalText">0 / 60 min goal</span>
+      <button type="button" id="editGoalBtn" class="mini-btn" aria-label="Edit daily goal">✏️ EDIT</button>
+    </div>
+    <div class="goal-edit" id="goalEditRow" hidden>
+      <input type="number" id="goalInput" min="5" max="1000" step="5" value="60">
+      <button type="button" id="saveGoalBtn" class="mini-btn">SAVE</button>
+    </div>
+  </div>
 
   <section>
     <div class="field">
@@ -446,7 +653,25 @@
       <input type="text" id="subjectInput" placeholder="e.g. Calculus Review" maxlength="60" autocomplete="off">
     </div>
 
-    <div class="duration-row">
+    <div class="field">
+      <label>Color Tag</label>
+      <div class="color-row" id="colorRow">
+        <button type="button" class="color-swatch" data-color="pink" style="background:var(--neon-pink)" aria-label="Pink tag"></button>
+        <button type="button" class="color-swatch" data-color="cyan" style="background:var(--neon-cyan)" aria-label="Cyan tag"></button>
+        <button type="button" class="color-swatch" data-color="green" style="background:var(--neon-green)" aria-label="Green tag"></button>
+        <button type="button" class="color-swatch" data-color="orange" style="background:var(--neon-orange)" aria-label="Orange tag"></button>
+        <button type="button" class="color-swatch" data-color="yellow" style="background:var(--neon-yellow)" aria-label="Yellow tag"></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="switch-label">
+        <input type="checkbox" id="pomodoroToggle">
+        <span>🍅 Pomodoro Mode (auto focus/break cycles)</span>
+      </label>
+    </div>
+
+    <div class="duration-row" id="manualDurationRow">
       <div class="field">
         <label for="minutesInput">Minutes</label>
         <input type="number" id="minutesInput" min="0" max="180" value="25" inputmode="numeric">
@@ -454,6 +679,17 @@
       <div class="field">
         <label for="secondsInput">Seconds</label>
         <input type="number" id="secondsInput" min="0" max="59" value="0" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="duration-row" id="pomodoroDurationRow" hidden>
+      <div class="field">
+        <label for="focusMinutesInput">Focus (min)</label>
+        <input type="number" id="focusMinutesInput" min="1" max="120" value="25" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="breakMinutesInput">Break (min)</label>
+        <input type="number" id="breakMinutesInput" min="1" max="60" value="5" inputmode="numeric">
       </div>
     </div>
   </section>
@@ -472,6 +708,27 @@
   </div>
 
   <p class="status-line" id="statusLine">&nbsp;</p>
+
+  <section class="log-section">
+    <button type="button" class="log-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsPanel">
+      <span>⚙ ALARM SETTINGS</span>
+      <span class="chevron" aria-hidden="true">▾</span>
+    </button>
+    <div id="settingsPanel" class="settings-panel" hidden>
+      <div class="field">
+        <label for="alarmToneSelect">Alarm Tone</label>
+        <select id="alarmToneSelect">
+          <option value="beep">Classic Beep</option>
+          <option value="chime">Soft Chime</option>
+          <option value="arcade">Arcade Blip</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="alarmVolumeInput">Alarm Volume</label>
+        <input type="range" id="alarmVolumeInput" min="0" max="100" value="70">
+      </div>
+    </div>
+  </section>
 
   <section class="log-section">
     <button type="button" class="log-toggle" id="logToggle" aria-expanded="false" aria-controls="sessionLog">
@@ -497,15 +754,41 @@
 
   var NAME_KEY = 'sandali_name';
   var LOG_KEY = 'sandali_sessions';
+  var SOUND_KEY = 'sandali_sound_on';
+  var GOAL_KEY = 'sandali_daily_goal_minutes';
+  var ALARM_TONE_KEY = 'sandali_alarm_tone';
+  var ALARM_VOL_KEY = 'sandali_alarm_volume';
+  var ACTIVE_KEY = 'sandali_active_timer';
+  var COLOR_KEY = 'sandali_last_color';
 
   var nameModal = document.getElementById('nameModal');
   var nameInput = document.getElementById('nameInput');
   var saveNameBtn = document.getElementById('saveNameBtn');
   var greetingEl = document.getElementById('greeting');
+  var editNameBtn = document.getElementById('editNameBtn');
+
+  var streakNum = document.getElementById('streakNum');
+  var todayNum = document.getElementById('todayNum');
+  var weekNum = document.getElementById('weekNum');
+
+  var goalFill = document.getElementById('goalFill');
+  var goalText = document.getElementById('goalText');
+  var editGoalBtn = document.getElementById('editGoalBtn');
+  var goalEditRow = document.getElementById('goalEditRow');
+  var goalInput = document.getElementById('goalInput');
+  var saveGoalBtn = document.getElementById('saveGoalBtn');
 
   var subjectInput = document.getElementById('subjectInput');
+  var colorRow = document.getElementById('colorRow');
+  var colorSwatches = colorRow.querySelectorAll('.color-swatch');
+
+  var pomodoroToggle = document.getElementById('pomodoroToggle');
+  var manualDurationRow = document.getElementById('manualDurationRow');
+  var pomodoroDurationRow = document.getElementById('pomodoroDurationRow');
   var minutesInput = document.getElementById('minutesInput');
   var secondsInput = document.getElementById('secondsInput');
+  var focusMinutesInput = document.getElementById('focusMinutesInput');
+  var breakMinutesInput = document.getElementById('breakMinutesInput');
 
   var capsule = document.getElementById('capsule');
   var capsuleSubject = document.getElementById('capsuleSubject');
@@ -516,6 +799,11 @@
   var pauseBtn = document.getElementById('pauseBtn');
   var resetBtn = document.getElementById('resetBtn');
 
+  var settingsToggle = document.getElementById('settingsToggle');
+  var settingsPanel = document.getElementById('settingsPanel');
+  var alarmToneSelect = document.getElementById('alarmToneSelect');
+  var alarmVolumeInput = document.getElementById('alarmVolumeInput');
+
   var sessionLogEl = document.getElementById('sessionLog');
   var logToggle = document.getElementById('logToggle');
 
@@ -525,12 +813,22 @@
   var isPaused = false;
   var activeSubject = '';
   var activeTotalSeconds = 0;
+  var activeColorTag = 'pink';
+  var selectedColor = localStorage.getItem(COLOR_KEY) || 'pink';
+
+  var pomodoroEnabledForRun = false;
+  var currentPhase = 'focus';
+  var pomoFocusMinutes = 25;
+  var pomoBreakMinutes = 5;
+  var cyclesCompleted = 0;
 
   var audioCtx = null;
+  var alarmTone = localStorage.getItem(ALARM_TONE_KEY) || 'beep';
+  var alarmVolume = parseInt(localStorage.getItem(ALARM_VOL_KEY), 10);
+  if (isNaN(alarmVolume)) alarmVolume = 70;
 
   /* ---------- Background video sound ---------- */
 
-  var SOUND_KEY = 'sandali_sound_on';
   var bgVideo = document.getElementById('bgVideo');
   var soundToggle = document.getElementById('soundToggle');
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -556,8 +854,6 @@
   } else {
     bgVideo.play().catch(function () { /* autoplay can still fail on some browsers; poster image covers it */ });
 
-    // Browsers block unmuted autoplay; if the visitor previously turned
-    // sound on, resume it the moment they make any real gesture on the page.
     if (localStorage.getItem(SOUND_KEY) === '1') {
       var resumeSoundOnce = function () {
         setSound(true);
@@ -568,6 +864,74 @@
       document.addEventListener('keydown', resumeSoundOnce, { once: true });
     }
   }
+
+  /* ---------- Ambient sound (generated, separate from alarm/video) ---------- */
+
+  var ambienceToggle = document.getElementById('ambienceToggle');
+  var ambienceNodes = null;
+  var ambienceOn = false;
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new Ctx();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function startAmbience() {
+    if (ambienceNodes) return;
+    var ctx = getAudioCtx();
+    var bufferSize = 2 * ctx.sampleRate;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    var lastOut = 0;
+    for (var i = 0; i < bufferSize; i++) {
+      var white = Math.random() * 2 - 1;
+      data[i] = (lastOut + 0.02 * white) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5;
+    }
+    var source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 700;
+    var gain = ctx.createGain();
+    gain.gain.value = 0.0001;
+    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 1.2);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    source.start();
+    ambienceNodes = { source: source, gain: gain };
+  }
+
+  function stopAmbience() {
+    if (!ambienceNodes) return;
+    var ctx = getAudioCtx();
+    var g = ambienceNodes.gain;
+    var s = ambienceNodes.source;
+    g.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+    setTimeout(function () { try { s.stop(); } catch (e) {} }, 500);
+    ambienceNodes = null;
+  }
+
+  function setAmbience(on) {
+    ambienceOn = on;
+    if (on) { startAmbience(); } else { stopAmbience(); }
+    ambienceToggle.textContent = on ? '🎵 AMBIENCE ON' : '🎵 AMBIENCE OFF';
+    ambienceToggle.classList.toggle('is-on', on);
+    ambienceToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+
+  ambienceToggle.addEventListener('click', function () {
+    setAmbience(!ambienceOn);
+  });
 
   /* ---------- Name / greeting ---------- */
 
@@ -611,6 +975,66 @@
     if (e.key === 'Enter') saveName();
   });
 
+  editNameBtn.addEventListener('click', function () {
+    nameInput.value = localStorage.getItem(NAME_KEY) || '';
+    nameModal.hidden = false;
+    nameInput.focus();
+    nameInput.select();
+  });
+
+  /* ---------- Color tag picker ---------- */
+
+  function selectColor(color) {
+    selectedColor = color;
+    colorSwatches.forEach(function (sw) {
+      sw.classList.toggle('selected', sw.getAttribute('data-color') === color);
+    });
+  }
+
+  colorSwatches.forEach(function (sw) {
+    sw.addEventListener('click', function () {
+      var color = sw.getAttribute('data-color');
+      selectColor(color);
+      localStorage.setItem(COLOR_KEY, color);
+    });
+  });
+
+  selectColor(selectedColor);
+
+  /* ---------- Pomodoro mode toggle ---------- */
+
+  function clampInt(val, min, max, fallback) {
+    var n = parseInt(val, 10);
+    if (isNaN(n)) return fallback;
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function currentInputSeconds() {
+    if (pomodoroToggle.checked) {
+      return clampInt(focusMinutesInput.value, 1, 120, 25) * 60;
+    }
+    return readInputSeconds();
+  }
+
+  pomodoroToggle.addEventListener('change', function () {
+    var checked = pomodoroToggle.checked;
+    manualDurationRow.hidden = checked;
+    pomodoroDurationRow.hidden = !checked;
+    if (!isRunning && !isPaused) {
+      remainingSeconds = currentInputSeconds();
+      activeTotalSeconds = remainingSeconds;
+      updateDigits();
+    }
+  });
+
+  focusMinutesInput.addEventListener('input', function () {
+    if (!isRunning && !isPaused && pomodoroToggle.checked) {
+      remainingSeconds = currentInputSeconds();
+      activeTotalSeconds = remainingSeconds;
+      updateDigits();
+    }
+  });
+
   /* ---------- Timer helpers ---------- */
 
   function formatTime(totalSecs) {
@@ -638,33 +1062,26 @@
     subjectInput.disabled = isRunning;
     minutesInput.disabled = isRunning;
     secondsInput.disabled = isRunning;
+    focusMinutesInput.disabled = isRunning;
+    breakMinutesInput.disabled = isRunning;
+    pomodoroToggle.disabled = isRunning || isPaused;
     pauseBtn.disabled = !isRunning && !isPaused;
     resetBtn.disabled = !isRunning && !isPaused;
-    pauseBtn.textContent = isPaused ? 'RESUME' : 'PAUSE';
+    pauseBtn.textContent = isPaused ? '▶ RESUME' : '❚❚ PAUSE';
   }
 
   /* ---------- Audio alarm ---------- */
 
-  function getAudioCtx() {
-    if (!audioCtx) {
-      var Ctx = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new Ctx();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    return audioCtx;
-  }
-
-  function beep(freq, startOffset, duration) {
+  function beep(freq, startOffset, duration, peak) {
     var ctx = getAudioCtx();
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
-    osc.type = 'square';
+    osc.type = (alarmTone === 'chime') ? 'sine' : 'square';
     osc.frequency.value = freq;
+    var vol = (peak !== undefined ? peak : 0.35) * (alarmVolume / 100);
     var startTime = ctx.currentTime + startOffset;
     gain.gain.setValueAtTime(0.0001, startTime);
-    gain.gain.exponentialRampToValueAtTime(0.35, startTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(Math.max(vol, 0.0002), startTime + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
     osc.connect(gain);
     gain.connect(ctx.destination);
@@ -674,13 +1091,43 @@
 
   function playAlarm() {
     try {
-      beep(880, 0.00, 0.18);
-      beep(880, 0.25, 0.18);
-      beep(1046, 0.50, 0.30);
+      if (alarmTone === 'chime') {
+        beep(523, 0.00, 0.35);
+        beep(659, 0.15, 0.35);
+        beep(784, 0.30, 0.5);
+      } else if (alarmTone === 'arcade') {
+        beep(660, 0.00, 0.08);
+        beep(880, 0.10, 0.08);
+        beep(660, 0.20, 0.08);
+        beep(880, 0.30, 0.16);
+      } else {
+        beep(880, 0.00, 0.18);
+        beep(880, 0.25, 0.18);
+        beep(1046, 0.50, 0.30);
+      }
     } catch (e) {
       /* Web Audio unavailable — visual flash still signals completion */
     }
   }
+
+  alarmToneSelect.value = alarmTone;
+  alarmVolumeInput.value = String(alarmVolume);
+
+  alarmToneSelect.addEventListener('change', function () {
+    alarmTone = alarmToneSelect.value;
+    localStorage.setItem(ALARM_TONE_KEY, alarmTone);
+  });
+
+  alarmVolumeInput.addEventListener('input', function () {
+    alarmVolume = parseInt(alarmVolumeInput.value, 10);
+    localStorage.setItem(ALARM_VOL_KEY, String(alarmVolume));
+  });
+
+  settingsToggle.addEventListener('click', function () {
+    var willOpen = settingsPanel.hidden;
+    settingsPanel.hidden = !willOpen;
+    settingsToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
 
   function flashCapsule() {
     capsule.classList.remove('flash');
@@ -688,6 +1135,82 @@
     capsule.classList.add('flash');
     setTimeout(function () { capsule.classList.remove('flash'); }, 2200);
   }
+
+  /* ---------- Stats: streaks, today/week totals, goal ---------- */
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function isoOfDate(d) {
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function todayISO() { return isoOfDate(new Date()); }
+
+  function formatMinutesShort(totalSeconds) {
+    var mins = Math.round(totalSeconds / 60);
+    if (mins < 60) return mins + 'm';
+    var h = Math.floor(mins / 60);
+    var m = mins % 60;
+    return h + 'h' + (m ? ' ' + m + 'm' : '');
+  }
+
+  function computeStats(sessions) {
+    var todayStr = todayISO();
+    var now = Date.now();
+    var weekMs = 7 * 24 * 60 * 60 * 1000;
+    var todayTotal = 0;
+    var weekTotal = 0;
+    var dateSet = {};
+    sessions.forEach(function (s) {
+      dateSet[s.dateISO] = true;
+      if (s.dateISO === todayStr) todayTotal += s.durationSeconds;
+      if (now - s.timestamp <= weekMs) weekTotal += s.durationSeconds;
+    });
+    var streak = 0;
+    var cursor = new Date();
+    if (!dateSet[isoOfDate(cursor)]) { cursor.setDate(cursor.getDate() - 1); }
+    while (dateSet[isoOfDate(cursor)]) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return { todayTotal: todayTotal, weekTotal: weekTotal, streak: streak };
+  }
+
+  function getGoalMinutes() {
+    var v = parseInt(localStorage.getItem(GOAL_KEY), 10);
+    return (isNaN(v) || v <= 0) ? 60 : v;
+  }
+
+  function renderGoal(todayTotalSeconds) {
+    var goalMin = getGoalMinutes();
+    var todayMin = Math.round(todayTotalSeconds / 60);
+    var pct = Math.min(100, Math.round((todayMin / goalMin) * 100));
+    goalFill.style.width = pct + '%';
+    goalText.textContent = todayMin + ' / ' + goalMin + ' min goal';
+  }
+
+  function renderStats() {
+    var sessions = loadSessions();
+    var stats = computeStats(sessions);
+    streakNum.textContent = stats.streak;
+    todayNum.textContent = formatMinutesShort(stats.todayTotal);
+    weekNum.textContent = formatMinutesShort(stats.weekTotal);
+    renderGoal(stats.todayTotal);
+    return stats;
+  }
+
+  editGoalBtn.addEventListener('click', function () {
+    goalInput.value = getGoalMinutes();
+    goalEditRow.hidden = false;
+    goalInput.focus();
+  });
+
+  saveGoalBtn.addEventListener('click', function () {
+    var val = clampInt(goalInput.value, 5, 1000, 60);
+    localStorage.setItem(GOAL_KEY, String(val));
+    goalEditRow.hidden = true;
+    renderStats();
+  });
 
   /* ---------- Session log ---------- */
 
@@ -704,41 +1227,155 @@
     localStorage.setItem(LOG_KEY, JSON.stringify(list));
   }
 
-  function renderSessions() {
+  function renderSessions(highlightFirst) {
     var sessions = loadSessions();
     sessionLogEl.innerHTML = '';
     if (sessions.length === 0) {
-      var li = document.createElement('li');
-      li.className = 'empty-log';
-      li.textContent = 'No sessions yet — your finished study sprints will show up here.';
-      sessionLogEl.appendChild(li);
+      var empty = document.createElement('li');
+      empty.className = 'empty-log';
+      empty.textContent = 'No sessions yet — your finished study sprints will show up here.';
+      sessionLogEl.appendChild(empty);
       return;
     }
-    sessions.forEach(function (s) {
+    sessions.forEach(function (s, index) {
       var li = document.createElement('li');
+      if (highlightFirst && index === 0) li.className = 'new-entry';
+
       var subj = document.createElement('div');
       subj.className = 'log-subject';
-      subj.textContent = s.subject;
+      var chip = document.createElement('span');
+      chip.className = 'log-chip';
+      chip.style.background = 'var(--neon-' + (s.colorTag || 'pink') + ')';
+      subj.appendChild(chip);
+      subj.appendChild(document.createTextNode(s.subject));
+
       var meta = document.createElement('div');
       meta.className = 'log-meta';
       meta.textContent = formatTime(s.durationSeconds) + ' · completed ' + s.completedAt;
+
       li.appendChild(subj);
       li.appendChild(meta);
       sessionLogEl.appendChild(li);
     });
   }
 
-  function logSession(subject, durationSeconds) {
+  function logSession(subject, durationSeconds, colorTag) {
     var sessions = loadSessions();
     var now = new Date();
     sessions.unshift({
       subject: subject,
       durationSeconds: durationSeconds,
+      colorTag: colorTag || 'pink',
+      dateISO: todayISO(),
+      timestamp: now.getTime(),
       completedAt: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
     saveSessions(sessions);
-    renderSessions();
+    renderSessions(true);
+    return renderStats();
   }
+
+  logToggle.addEventListener('click', function () {
+    var willOpen = sessionLogEl.hidden;
+    sessionLogEl.hidden = !willOpen;
+    logToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
+
+  /* ---------- Persist / resume active timer ---------- */
+
+  function persistActive() {
+    if (!isRunning && !isPaused) {
+      localStorage.removeItem(ACTIVE_KEY);
+      return;
+    }
+    var data = {
+      subject: activeSubject,
+      colorTag: activeColorTag,
+      totalSeconds: activeTotalSeconds,
+      remainingSeconds: remainingSeconds,
+      isPaused: isPaused,
+      savedAt: Date.now(),
+      pomodoro: pomodoroEnabledForRun ? {
+        enabled: true,
+        phase: currentPhase,
+        focusMin: pomoFocusMinutes,
+        breakMin: pomoBreakMinutes,
+        cycles: cyclesCompleted
+      } : null
+    };
+    localStorage.setItem(ACTIVE_KEY, JSON.stringify(data));
+  }
+
+  function clearActive() {
+    localStorage.removeItem(ACTIVE_KEY);
+  }
+
+  function restoreActive() {
+    var raw = localStorage.getItem(ACTIVE_KEY);
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return; }
+    if (!data) return;
+
+    var elapsedSec = data.isPaused ? 0 : Math.floor((Date.now() - data.savedAt) / 1000);
+    var newRemaining = data.remainingSeconds - elapsedSec;
+
+    activeSubject = data.subject;
+    activeColorTag = data.colorTag || 'pink';
+    activeTotalSeconds = data.totalSeconds;
+    subjectInput.value = activeSubject;
+    selectColor(activeColorTag);
+
+    if (data.pomodoro && data.pomodoro.enabled) {
+      pomodoroEnabledForRun = true;
+      currentPhase = data.pomodoro.phase;
+      pomoFocusMinutes = data.pomodoro.focusMin;
+      pomoBreakMinutes = data.pomodoro.breakMin;
+      cyclesCompleted = data.pomodoro.cycles;
+      pomodoroToggle.checked = true;
+      manualDurationRow.hidden = true;
+      pomodoroDurationRow.hidden = false;
+      capsuleSubject.textContent = (currentPhase === 'break') ? '☕ Break Time' : activeSubject;
+    } else {
+      capsuleSubject.textContent = activeSubject;
+    }
+
+    if (newRemaining <= 0) {
+      clearActive();
+      if (pomodoroEnabledForRun && currentPhase === 'break') {
+        statusLine.textContent = 'Your break finished while you were away.';
+      } else if (pomodoroEnabledForRun && currentPhase === 'focus') {
+        logSession(activeSubject, pomoFocusMinutes * 60, activeColorTag);
+        statusLine.textContent = 'Your last focus block finished while you were away — logged it.';
+      } else {
+        logSession(activeSubject, activeTotalSeconds, activeColorTag);
+        statusLine.textContent = 'Your last session finished while you were away — logged it.';
+      }
+      resetTimer();
+      return;
+    }
+
+    remainingSeconds = newRemaining;
+    isPaused = data.isPaused;
+    isRunning = !data.isPaused;
+    updateDigits();
+    setControlsState();
+    if (isRunning) {
+      timerHandle = setInterval(tick, 1000);
+      statusLine.textContent = (currentPhase === 'break' ? 'On break (resumed)' : 'Studying: ' + activeSubject + ' (resumed)');
+    } else {
+      statusLine.textContent = (currentPhase === 'break' ? 'Paused: break' : 'Paused: ' + activeSubject);
+    }
+  }
+
+  /* ---------- Auto-pause when the tab is hidden ---------- */
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && isRunning) {
+      pauseOrResume();
+      statusLine.textContent = "⏸ Auto-paused — you switched tabs! Tap Resume when you're back.";
+    }
+  });
 
   /* ---------- Timer control ---------- */
 
@@ -757,11 +1394,39 @@
     isPaused = false;
     remainingSeconds = 0;
     updateDigits();
-    statusLine.textContent = "TIME'S UP! Great work.";
-    playAlarm();
     flashCapsule();
-    logSession(activeSubject, activeTotalSeconds);
-    setControlsState();
+    playAlarm();
+
+    if (pomodoroEnabledForRun && currentPhase === 'focus') {
+      var stats1 = logSession(activeSubject, pomoFocusMinutes * 60, activeColorTag);
+      cyclesCompleted++;
+      currentPhase = 'break';
+      activeTotalSeconds = pomoBreakMinutes * 60;
+      remainingSeconds = activeTotalSeconds;
+      capsuleSubject.textContent = '☕ Break Time';
+      updateDigits();
+      statusLine.textContent = '🎉 Focus done! ' + stats1.streak + ' day streak. Break for ' + formatTime(activeTotalSeconds) + '.';
+      isRunning = true;
+      timerHandle = setInterval(tick, 1000);
+      setControlsState();
+      persistActive();
+    } else if (pomodoroEnabledForRun && currentPhase === 'break') {
+      currentPhase = 'focus';
+      activeTotalSeconds = pomoFocusMinutes * 60;
+      remainingSeconds = activeTotalSeconds;
+      capsuleSubject.textContent = activeSubject;
+      updateDigits();
+      statusLine.textContent = '🍅 Break over! Back to focus — round ' + (cyclesCompleted + 1) + '.';
+      isRunning = true;
+      timerHandle = setInterval(tick, 1000);
+      setControlsState();
+      persistActive();
+    } else {
+      var stats2 = logSession(activeSubject, activeTotalSeconds, activeColorTag);
+      statusLine.textContent = '🎉 ' + activeSubject + ' — ' + formatTime(activeTotalSeconds) + ' logged! ' + stats2.streak + ' day streak.';
+      clearActive();
+      setControlsState();
+    }
   }
 
   function startTimer() {
@@ -770,29 +1435,44 @@
     if (isPaused) {
       isRunning = true;
       isPaused = false;
-      statusLine.textContent = 'Studying: ' + activeSubject;
+      statusLine.textContent = (currentPhase === 'break' ? 'On break' : 'Studying: ' + activeSubject);
       timerHandle = setInterval(tick, 1000);
       setControlsState();
+      persistActive();
       return;
     }
 
-    var totalSecs = readInputSeconds();
-    if (totalSecs <= 0) {
-      statusLine.textContent = 'Set a duration greater than 0 first.';
-      return;
+    pomodoroEnabledForRun = pomodoroToggle.checked;
+    activeColorTag = selectedColor;
+
+    if (pomodoroEnabledForRun) {
+      pomoFocusMinutes = clampInt(focusMinutesInput.value, 1, 120, 25);
+      pomoBreakMinutes = clampInt(breakMinutesInput.value, 1, 60, 5);
+      currentPhase = 'focus';
+      cyclesCompleted = 0;
+      activeSubject = subjectInput.value.trim() || 'Study Session';
+      activeTotalSeconds = pomoFocusMinutes * 60;
+      remainingSeconds = activeTotalSeconds;
+      capsuleSubject.textContent = activeSubject;
+    } else {
+      var totalSecs = readInputSeconds();
+      if (totalSecs <= 0) {
+        statusLine.textContent = 'Set a duration greater than 0 first.';
+        return;
+      }
+      activeSubject = subjectInput.value.trim() || 'Study Session';
+      activeTotalSeconds = totalSecs;
+      remainingSeconds = totalSecs;
+      capsuleSubject.textContent = activeSubject;
     }
 
-    activeSubject = subjectInput.value.trim() || 'Study Session';
-    activeTotalSeconds = totalSecs;
-    remainingSeconds = totalSecs;
-    capsuleSubject.textContent = activeSubject;
     updateDigits();
-
     isRunning = true;
     isPaused = false;
-    statusLine.textContent = 'Studying: ' + activeSubject;
+    statusLine.textContent = (pomodoroEnabledForRun ? '🍅 Focus: ' : 'Studying: ') + activeSubject;
     timerHandle = setInterval(tick, 1000);
     setControlsState();
+    persistActive();
   }
 
   function pauseOrResume() {
@@ -802,8 +1482,9 @@
       timerHandle = null;
       isRunning = false;
       isPaused = true;
-      statusLine.textContent = 'Paused: ' + activeSubject;
+      statusLine.textContent = (currentPhase === 'break' ? 'Paused: break' : 'Paused: ' + activeSubject);
       setControlsState();
+      persistActive();
     } else {
       startTimer();
     }
@@ -814,15 +1495,17 @@
     timerHandle = null;
     isRunning = false;
     isPaused = false;
-    remainingSeconds = 0;
-    activeTotalSeconds = 0;
+    pomodoroEnabledForRun = false;
+    currentPhase = 'focus';
+    cyclesCompleted = 0;
     activeSubject = '';
+    activeTotalSeconds = 0;
     capsuleSubject.textContent = 'Ready when you are';
     statusLine.textContent = '';
     capsule.classList.remove('flash');
-    var inputSecs = readInputSeconds();
-    remainingSeconds = inputSecs;
-    activeTotalSeconds = inputSecs;
+    clearActive();
+    remainingSeconds = currentInputSeconds();
+    activeTotalSeconds = remainingSeconds;
     updateDigits();
     setControlsState();
   }
@@ -830,12 +1513,6 @@
   startBtn.addEventListener('click', startTimer);
   pauseBtn.addEventListener('click', pauseOrResume);
   resetBtn.addEventListener('click', resetTimer);
-
-  logToggle.addEventListener('click', function () {
-    var willOpen = sessionLogEl.hidden;
-    sessionLogEl.hidden = !willOpen;
-    logToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-  });
 
   minutesInput.addEventListener('input', function () {
     if (!isRunning && !isPaused) {
@@ -859,7 +1536,9 @@
   activeTotalSeconds = remainingSeconds;
   updateDigits();
   renderSessions();
+  renderStats();
   setControlsState();
+  restoreActive();
 })();
 </script>
 
