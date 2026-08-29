@@ -596,6 +596,58 @@
     margin-bottom: 14px;
   }
 
+  .intro-modal {
+    max-width: 440px;
+    text-align: left;
+  }
+
+  .intro-modal h2 {
+    text-align: center;
+  }
+
+  .intro-subtitle {
+    text-align: center;
+    font-size: 17px;
+    color: var(--neon-cyan);
+    margin: 0 0 16px;
+  }
+
+  .intro-list {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .intro-list li {
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--paper);
+    background: var(--navy-light);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--shadow-hard);
+    padding: 8px 10px;
+  }
+
+  .intro-credit {
+    text-align: center;
+    font-size: 16px;
+    color: var(--neon-yellow);
+    margin: 0 0 16px;
+  }
+
+  .intro-credit strong {
+    color: var(--neon-pink);
+  }
+
+  #closeIntroBtn {
+    display: block;
+    margin: 0 auto;
+    background: var(--neon-green);
+  }
+
   /* ---------- Fixed corner toggles ---------- */
   .corner-toggle {
     position: fixed;
@@ -656,6 +708,7 @@
 
   <p class="greeting" id="greeting" aria-live="polite"></p>
   <button type="button" id="editNameBtn" class="mini-link">✏️ not you? change name</button>
+  <button type="button" id="howToPlayBtn" class="mini-link">❓ how to play</button>
 
   <div class="stats-bar">
     <div class="stat">
@@ -776,7 +829,24 @@
   </section>
 </main>
 
-<div class="modal-overlay" id="nameModal">
+<div class="modal-overlay" id="introModal" hidden>
+  <div class="modal intro-modal">
+    <h2>🎮 WELCOME TO SANDALI!</h2>
+    <p class="intro-subtitle">isang sandali, isang laban — one moment, one round against your to-do list.</p>
+    <ul class="intro-list">
+      <li>📚 Type what you're studying — no judgment if it's "cramming for finals."</li>
+      <li>⏱️ Set your time, or flip on 🍅 Pomodoro Mode for auto focus/break rounds.</li>
+      <li>▶ Hit START — the capsule counts down like a boss health bar.</li>
+      <li>🚪 Tab away mid-session and Sandali auto-pauses you. No sneaky "5-minute" Discord breaks.</li>
+      <li>🔔 Alarm goes off, the session logs itself — drop a quick note while it's fresh.</li>
+      <li>🔥 Show up daily to build your streak, fill your goal bar, and flex your log.</li>
+    </ul>
+    <p class="intro-credit">Built with 💛 by <strong>Jethro K. Mandalones</strong></p>
+    <button type="button" id="closeIntroBtn">GOT IT — LET'S GO ▶</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="nameModal" hidden>
   <div class="modal">
     <h2>MAGANDANG GABI!</h2>
     <p>Before we start — what should Sandali call you?</p>
@@ -797,6 +867,11 @@
   var ALARM_VOL_KEY = 'sandali_alarm_volume';
   var ACTIVE_KEY = 'sandali_active_timer';
   var COLOR_KEY = 'sandali_last_color';
+  var INTRO_KEY = 'sandali_intro_seen';
+
+  var introModal = document.getElementById('introModal');
+  var closeIntroBtn = document.getElementById('closeIntroBtn');
+  var howToPlayBtn = document.getElementById('howToPlayBtn');
 
   var nameModal = document.getElementById('nameModal');
   var nameInput = document.getElementById('nameInput');
@@ -995,6 +1070,24 @@
       nameInput.focus();
     }
   }
+
+  function initApp() {
+    if (localStorage.getItem(INTRO_KEY)) {
+      initName();
+    } else {
+      introModal.hidden = false;
+    }
+  }
+
+  closeIntroBtn.addEventListener('click', function () {
+    localStorage.setItem(INTRO_KEY, '1');
+    introModal.hidden = true;
+    initName();
+  });
+
+  howToPlayBtn.addEventListener('click', function () {
+    introModal.hidden = false;
+  });
 
   function saveName() {
     var val = nameInput.value.trim();
@@ -1641,7 +1734,7 @@
 
   /* ---------- Init ---------- */
 
-  initName();
+  initApp();
   remainingSeconds = readInputSeconds();
   activeTotalSeconds = remainingSeconds;
   updateDigits();
