@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sandali — Study Timer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --navy-deep: #070a1f;
+    --navy: #10143a;
+    --navy-light: #1b2158;
+    --ink: #05060f;
+    --paper: #fff3d6;
+    --paper-dim: #d9c9a3;
+    --neon-pink: #ff4fa3;
+    --neon-orange: #ffa63e;
+    --neon-yellow: #ffe066;
+    --neon-cyan: #4de8ff;
+    --neon-green: #6dff9e;
+    --shadow-hard: #000000;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: 'VT323', monospace;
+    color: var(--paper);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 14px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Full-viewport background layer */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: url('Sandali.jpg') center center / cover no-repeat, var(--navy-deep);
+  }
+
+  .bg-tint {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(7,10,31,0.35) 0%, rgba(7,10,31,0.65) 70%, rgba(7,10,31,0.85) 100%);
+  }
+
+  h1, h2, .pixel-font {
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  /* ---------- Card ---------- */
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--navy);
+    border: 4px solid var(--ink);
+    box-shadow: 8px 8px 0 var(--shadow-hard), 0 0 24px rgba(255, 166, 62, 0.25);
+    padding: 22px 20px 26px;
+    position: relative;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 2px dashed rgba(255, 224, 102, 0.25);
+    pointer-events: none;
+  }
+
+  header.app-header {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .signage {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--neon-pink);
+    text-shadow:
+      0 0 4px var(--neon-pink),
+      0 0 10px var(--neon-pink),
+      2px 2px 0 var(--ink);
+    letter-spacing: 1px;
+  }
+
+  .tagline {
+    font-size: 18px;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 6px rgba(77, 232, 255, 0.6);
+    margin-top: 6px;
+  }
+
+  .greeting {
+    text-align: center;
+    font-size: 20px;
+    color: var(--neon-yellow);
+    margin: 10px 0 18px;
+    text-shadow: 1px 1px 0 var(--ink);
+    min-height: 24px;
+  }
+
+  /* ---------- Form fields ---------- */
+  .field {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 16px;
+    color: var(--paper-dim);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--shadow-hard);
+    padding: 8px 10px;
+    outline: none;
+  }
+
+  .duration-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .duration-row .field {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  input:focus-visible,
+  button:focus-visible {
+    outline: 3px dashed var(--neon-cyan);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Timer capsule ---------- */
+  .capsule-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 22px 0 18px;
+  }
+
+  .capsule {
+    background: var(--ink);
+    border: 4px solid var(--neon-yellow);
+    border-radius: 60px;
+    box-shadow:
+      6px 6px 0 var(--shadow-hard),
+      0 0 18px rgba(255, 224, 102, 0.45) inset;
+    padding: 18px 34px;
+    text-align: center;
+    min-width: 220px;
+  }
+
+  .capsule .subject-label {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: var(--neon-cyan);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .capsule .digits {
+    font-size: 42px;
+    letter-spacing: 3px;
+    color: var(--neon-green);
+    text-shadow: 0 0 8px rgba(109, 255, 158, 0.7);
+  }
+
+  .capsule.flash {
+    animation: capsule-flash 0.35s steps(1) 6;
+  }
+
+  @keyframes capsule-flash {
+    0%   { background: var(--ink); border-color: var(--neon-yellow); }
+    50%  { background: var(--neon-orange); border-color: var(--neon-pink); }
+    100% { background: var(--ink); border-color: var(--neon-yellow); }
+  }
+
+  .status-line {
+    text-align: center;
+    font-size: 17px;
+    color: var(--neon-orange);
+    min-height: 22px;
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  button {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow-hard);
+    padding: 12px 14px;
+    cursor: pointer;
+    background: var(--neon-yellow);
+    transition: transform 0.05s linear;
+  }
+
+  button:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--shadow-hard);
+  }
+
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  #startBtn { background: var(--neon-green); }
+  #pauseBtn { background: var(--neon-cyan); }
+  #resetBtn { background: var(--neon-pink); color: var(--paper); }
+
+  /* ---------- Session log ---------- */
+  .log-section {
+    margin-top: 22px;
+    border-top: 3px solid var(--ink);
+    padding-top: 14px;
+  }
+
+  .log-section h2 {
+    font-size: 13px;
+    color: var(--neon-yellow);
+    text-shadow: 1px 1px 0 var(--ink);
+    margin: 0 0 10px;
+  }
+
+  #sessionLog {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  #sessionLog li {
+    background: var(--navy-light);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--shadow-hard);
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    font-size: 17px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #sessionLog li .log-subject {
+    color: var(--neon-yellow);
+    font-size: 18px;
+  }
+
+  #sessionLog li .log-meta {
+    color: var(--paper-dim);
+    font-size: 15px;
+  }
+
+  .empty-log {
+    font-size: 16px;
+    color: var(--paper-dim);
+    text-align: center;
+    padding: 6px 0;
+  }
+
+  /* ---------- Name modal ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 6, 15, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 16px;
+  }
+
+  .modal-overlay[hidden] { display: none; }
+
+  .modal {
+    background: var(--navy);
+    border: 4px solid var(--neon-yellow);
+    box-shadow: 8px 8px 0 var(--shadow-hard);
+    padding: 22px 20px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal h2 {
+    font-size: 14px;
+    color: var(--neon-pink);
+    text-shadow: 1px 1px 0 var(--ink);
+    margin: 0 0 12px;
+    line-height: 1.6;
+  }
+
+  .modal p {
+    font-size: 18px;
+    color: var(--paper-dim);
+    margin: 0 0 14px;
+  }
+
+  .modal input[type="text"] {
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 480px) {
+    .capsule .digits { font-size: 34px; }
+    .signage { font-size: 12px; }
+    .tagline { font-size: 16px; }
+    button { font-size: 10px; padding: 10px 10px; }
+    .duration-row { flex-direction: row; }
+  }
+
+  @media (max-width: 360px) {
+    .capsule { padding: 14px 20px; min-width: 0; width: 100%; }
+    .capsule .digits { font-size: 28px; letter-spacing: 1px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true"></div>
+<div class="bg-tint" aria-hidden="true"></div>
+
+<main class="card">
+  <header class="app-header">
+    <h1 class="signage">✦ SANDALI ✦</h1>
+    <p class="tagline">isang sandali, isang lesson.</p>
+  </header>
+
+  <p class="greeting" id="greeting" aria-live="polite"></p>
+
+  <section>
+    <div class="field">
+      <label for="subjectInput">Subject</label>
+      <input type="text" id="subjectInput" placeholder="e.g. Calculus Review" maxlength="60" autocomplete="off">
+    </div>
+
+    <div class="duration-row">
+      <div class="field">
+        <label for="minutesInput">Minutes</label>
+        <input type="number" id="minutesInput" min="0" max="180" value="25" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="secondsInput">Seconds</label>
+        <input type="number" id="secondsInput" min="0" max="59" value="0" inputmode="numeric">
+      </div>
+    </div>
+  </section>
+
+  <div class="capsule-wrap">
+    <div class="capsule" id="capsule">
+      <div class="subject-label" id="capsuleSubject">Ready when you are</div>
+      <div class="digits" id="digits" aria-live="polite">25:00</div>
+    </div>
+  </div>
+
+  <p class="status-line" id="statusLine">&nbsp;</p>
+
+  <div class="controls">
+    <button type="button" id="startBtn">START</button>
+    <button type="button" id="pauseBtn" disabled>PAUSE</button>
+    <button type="button" id="resetBtn" disabled>RESET</button>
+  </div>
+
+  <section class="log-section">
+    <h2>SESSION LOG</h2>
+    <ul id="sessionLog"></ul>
+  </section>
+</main>
+
+<div class="modal-overlay" id="nameModal">
+  <div class="modal">
+    <h2>MAGANDANG GABI!</h2>
+    <p>Before we start — what should Sandali call you?</p>
+    <input type="text" id="nameInput" placeholder="Your name" maxlength="30" autocomplete="off">
+    <button type="button" id="saveNameBtn">LET'S GO</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var NAME_KEY = 'sandali_name';
+  var LOG_KEY = 'sandali_sessions';
+
+  var nameModal = document.getElementById('nameModal');
+  var nameInput = document.getElementById('nameInput');
+  var saveNameBtn = document.getElementById('saveNameBtn');
+  var greetingEl = document.getElementById('greeting');
+
+  var subjectInput = document.getElementById('subjectInput');
+  var minutesInput = document.getElementById('minutesInput');
+  var secondsInput = document.getElementById('secondsInput');
+
+  var capsule = document.getElementById('capsule');
+  var capsuleSubject = document.getElementById('capsuleSubject');
+  var digitsEl = document.getElementById('digits');
+  var statusLine = document.getElementById('statusLine');
+
+  var startBtn = document.getElementById('startBtn');
+  var pauseBtn = document.getElementById('pauseBtn');
+  var resetBtn = document.getElementById('resetBtn');
+
+  var sessionLogEl = document.getElementById('sessionLog');
+
+  var timerHandle = null;
+  var remainingSeconds = 0;
+  var isRunning = false;
+  var isPaused = false;
+  var activeSubject = '';
+  var activeTotalSeconds = 0;
+
+  var audioCtx = null;
+
+  /* ---------- Name / greeting ---------- */
+
+  function timeOfDayWord() {
+    var h = new Date().getHours();
+    if (h < 5) return 'gabi';
+    if (h < 12) return 'umaga';
+    if (h < 18) return 'hapon';
+    return 'gabi';
+  }
+
+  function showGreeting(name) {
+    var word = timeOfDayWord();
+    greetingEl.textContent = 'Magandang ' + word + ', ' + name + '! Ready to study?';
+  }
+
+  function initName() {
+    var stored = localStorage.getItem(NAME_KEY);
+    if (stored) {
+      nameModal.hidden = true;
+      showGreeting(stored);
+    } else {
+      nameModal.hidden = false;
+      nameInput.focus();
+    }
+  }
+
+  function saveName() {
+    var val = nameInput.value.trim();
+    if (!val) {
+      nameInput.focus();
+      return;
+    }
+    localStorage.setItem(NAME_KEY, val);
+    nameModal.hidden = true;
+    showGreeting(val);
+  }
+
+  saveNameBtn.addEventListener('click', saveName);
+  nameInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') saveName();
+  });
+
+  /* ---------- Timer helpers ---------- */
+
+  function formatTime(totalSecs) {
+    var m = Math.floor(totalSecs / 60);
+    var s = totalSecs % 60;
+    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+  }
+
+  function readInputSeconds() {
+    var mins = parseInt(minutesInput.value, 10);
+    var secs = parseInt(secondsInput.value, 10);
+    if (isNaN(mins) || mins < 0) mins = 0;
+    if (isNaN(secs) || secs < 0) secs = 0;
+    if (secs > 59) secs = 59;
+    return mins * 60 + secs;
+  }
+
+  function updateDigits() {
+    digitsEl.textContent = formatTime(remainingSeconds);
+  }
+
+  function setControlsState() {
+    startBtn.disabled = isRunning;
+    subjectInput.disabled = isRunning;
+    minutesInput.disabled = isRunning;
+    secondsInput.disabled = isRunning;
+    pauseBtn.disabled = !isRunning && !isPaused;
+    resetBtn.disabled = !isRunning && !isPaused;
+    pauseBtn.textContent = isPaused ? 'RESUME' : 'PAUSE';
+  }
+
+  /* ---------- Audio alarm ---------- */
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new Ctx();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function beep(freq, startOffset, duration) {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    var startTime = ctx.currentTime + startOffset;
+    gain.gain.setValueAtTime(0.0001, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.35, startTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.02);
+  }
+
+  function playAlarm() {
+    try {
+      beep(880, 0.00, 0.18);
+      beep(880, 0.25, 0.18);
+      beep(1046, 0.50, 0.30);
+    } catch (e) {
+      /* Web Audio unavailable — visual flash still signals completion */
+    }
+  }
+
+  function flashCapsule() {
+    capsule.classList.remove('flash');
+    void capsule.offsetWidth;
+    capsule.classList.add('flash');
+    setTimeout(function () { capsule.classList.remove('flash'); }, 2200);
+  }
+
+  /* ---------- Session log ---------- */
+
+  function loadSessions() {
+    try {
+      var raw = localStorage.getItem(LOG_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveSessions(list) {
+    localStorage.setItem(LOG_KEY, JSON.stringify(list));
+  }
+
+  function renderSessions() {
+    var sessions = loadSessions();
+    sessionLogEl.innerHTML = '';
+    if (sessions.length === 0) {
+      var li = document.createElement('li');
+      li.className = 'empty-log';
+      li.textContent = 'No sessions yet — your finished study sprints will show up here.';
+      sessionLogEl.appendChild(li);
+      return;
+    }
+    sessions.forEach(function (s) {
+      var li = document.createElement('li');
+      var subj = document.createElement('div');
+      subj.className = 'log-subject';
+      subj.textContent = s.subject;
+      var meta = document.createElement('div');
+      meta.className = 'log-meta';
+      meta.textContent = formatTime(s.durationSeconds) + ' · completed ' + s.completedAt;
+      li.appendChild(subj);
+      li.appendChild(meta);
+      sessionLogEl.appendChild(li);
+    });
+  }
+
+  function logSession(subject, durationSeconds) {
+    var sessions = loadSessions();
+    var now = new Date();
+    sessions.unshift({
+      subject: subject,
+      durationSeconds: durationSeconds,
+      completedAt: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    saveSessions(sessions);
+    renderSessions();
+  }
+
+  /* ---------- Timer control ---------- */
+
+  function tick() {
+    remainingSeconds--;
+    updateDigits();
+    if (remainingSeconds <= 0) {
+      completeTimer();
+    }
+  }
+
+  function completeTimer() {
+    clearInterval(timerHandle);
+    timerHandle = null;
+    isRunning = false;
+    isPaused = false;
+    remainingSeconds = 0;
+    updateDigits();
+    statusLine.textContent = "TIME'S UP! Great work.";
+    playAlarm();
+    flashCapsule();
+    logSession(activeSubject, activeTotalSeconds);
+    setControlsState();
+  }
+
+  function startTimer() {
+    if (isRunning) return;
+
+    if (isPaused) {
+      isRunning = true;
+      isPaused = false;
+      statusLine.textContent = 'Studying: ' + activeSubject;
+      timerHandle = setInterval(tick, 1000);
+      setControlsState();
+      return;
+    }
+
+    var totalSecs = readInputSeconds();
+    if (totalSecs <= 0) {
+      statusLine.textContent = 'Set a duration greater than 0 first.';
+      return;
+    }
+
+    activeSubject = subjectInput.value.trim() || 'Study Session';
+    activeTotalSeconds = totalSecs;
+    remainingSeconds = totalSecs;
+    capsuleSubject.textContent = activeSubject;
+    updateDigits();
+
+    isRunning = true;
+    isPaused = false;
+    statusLine.textContent = 'Studying: ' + activeSubject;
+    timerHandle = setInterval(tick, 1000);
+    setControlsState();
+  }
+
+  function pauseOrResume() {
+    if (!isRunning && !isPaused) return;
+    if (isRunning) {
+      clearInterval(timerHandle);
+      timerHandle = null;
+      isRunning = false;
+      isPaused = true;
+      statusLine.textContent = 'Paused: ' + activeSubject;
+      setControlsState();
+    } else {
+      startTimer();
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerHandle);
+    timerHandle = null;
+    isRunning = false;
+    isPaused = false;
+    remainingSeconds = 0;
+    activeTotalSeconds = 0;
+    activeSubject = '';
+    capsuleSubject.textContent = 'Ready when you are';
+    statusLine.textContent = '';
+    capsule.classList.remove('flash');
+    var inputSecs = readInputSeconds();
+    remainingSeconds = inputSecs;
+    activeTotalSeconds = inputSecs;
+    updateDigits();
+    setControlsState();
+  }
+
+  startBtn.addEventListener('click', startTimer);
+  pauseBtn.addEventListener('click', pauseOrResume);
+  resetBtn.addEventListener('click', resetTimer);
+
+  minutesInput.addEventListener('input', function () {
+    if (!isRunning && !isPaused) {
+      remainingSeconds = readInputSeconds();
+      activeTotalSeconds = remainingSeconds;
+      updateDigits();
+    }
+  });
+  secondsInput.addEventListener('input', function () {
+    if (!isRunning && !isPaused) {
+      remainingSeconds = readInputSeconds();
+      activeTotalSeconds = remainingSeconds;
+      updateDigits();
+    }
+  });
+
+  /* ---------- Init ---------- */
+
+  initName();
+  remainingSeconds = readInputSeconds();
+  activeTotalSeconds = remainingSeconds;
+  updateDigits();
+  renderSessions();
+  setControlsState();
+})();
+</script>
+
+</body>
+</html>
