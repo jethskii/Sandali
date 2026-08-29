@@ -50,7 +50,16 @@
     position: fixed;
     inset: 0;
     z-index: -2;
-    background: url('Sandali.jpg') center center / cover no-repeat, var(--navy-deep);
+    background: var(--navy-deep);
+  }
+
+  .bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
   }
 
   .bg-tint {
@@ -339,6 +348,19 @@
     margin-bottom: 14px;
   }
 
+  /* ---------- Sound toggle ---------- */
+  .sound-toggle {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 40;
+    font-size: 11px;
+    padding: 10px 12px;
+    background: var(--neon-yellow);
+  }
+
+  .sound-toggle.is-on { background: var(--neon-green); }
+
   /* ---------- Responsive ---------- */
   @media (max-width: 480px) {
     .capsule .digits { font-size: 34px; }
@@ -357,7 +379,20 @@
 <body>
 
 <div class="bg-layer" aria-hidden="true"></div>
+<video
+  id="bgVideo"
+  class="bg-video"
+  src="background.mp4"
+  poster="Sandali.jpg"
+  autoplay
+  muted
+  loop
+  playsinline
+  aria-hidden="true"
+></video>
 <div class="bg-tint" aria-hidden="true"></div>
+
+<button type="button" id="soundToggle" class="sound-toggle" aria-pressed="false">🔈 SOUND OFF</button>
 
 <main class="card">
   <header class="app-header">
@@ -450,6 +485,47 @@
   var activeTotalSeconds = 0;
 
   var audioCtx = null;
+
+  /* ---------- Background video sound ---------- */
+
+  var SOUND_KEY = 'sandali_sound_on';
+  var bgVideo = document.getElementById('bgVideo');
+  var soundToggle = document.getElementById('soundToggle');
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function setSound(on) {
+    bgVideo.muted = !on;
+    if (on) {
+      bgVideo.play().catch(function () { /* still blocked without a gesture; ignore */ });
+    }
+    soundToggle.textContent = on ? '🔊 SOUND ON' : '🔈 SOUND OFF';
+    soundToggle.classList.toggle('is-on', on);
+    soundToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+    localStorage.setItem(SOUND_KEY, on ? '1' : '0');
+  }
+
+  soundToggle.addEventListener('click', function () {
+    setSound(bgVideo.muted);
+  });
+
+  if (prefersReducedMotion) {
+    bgVideo.pause();
+    bgVideo.removeAttribute('autoplay');
+  } else {
+    bgVideo.play().catch(function () { /* autoplay can still fail on some browsers; poster image covers it */ });
+
+    // Browsers block unmuted autoplay; if the visitor previously turned
+    // sound on, resume it the moment they make any real gesture on the page.
+    if (localStorage.getItem(SOUND_KEY) === '1') {
+      var resumeSoundOnce = function () {
+        setSound(true);
+        document.removeEventListener('click', resumeSoundOnce);
+        document.removeEventListener('keydown', resumeSoundOnce);
+      };
+      document.addEventListener('click', resumeSoundOnce, { once: true });
+      document.addEventListener('keydown', resumeSoundOnce, { once: true });
+    }
+  }
 
   /* ---------- Name / greeting ---------- */
 
