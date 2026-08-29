@@ -491,6 +491,43 @@
     font-size: 15px;
   }
 
+  .log-note-preview {
+    font-size: 14px;
+    font-style: italic;
+    color: var(--neon-cyan);
+    margin-top: 2px;
+    word-break: break-word;
+  }
+
+  .note-toggle-btn {
+    align-self: flex-start;
+    margin-top: 6px;
+  }
+
+  .note-editor {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .note-editor[hidden] { display: none; }
+
+  .note-textarea {
+    width: 100%;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--shadow-hard);
+    padding: 6px 8px;
+    resize: vertical;
+    min-height: 50px;
+  }
+
+  .note-save-btn { align-self: flex-start; }
+
   @keyframes new-entry-pulse {
     0%   { box-shadow: 3px 3px 0 var(--shadow-hard), 0 0 0 rgba(255, 224, 102, 0); }
     30%  { box-shadow: 3px 3px 0 var(--shadow-hard), 0 0 16px rgba(255, 224, 102, 0.9); }
@@ -1239,6 +1276,7 @@
     }
     sessions.forEach(function (s, index) {
       var li = document.createElement('li');
+      li.setAttribute('data-id', s.id || '');
       if (highlightFirst && index === 0) li.className = 'new-entry';
 
       var subj = document.createElement('div');
@@ -1255,24 +1293,96 @@
 
       li.appendChild(subj);
       li.appendChild(meta);
+
+      if (s.note) {
+        var preview = document.createElement('div');
+        preview.className = 'log-note-preview';
+        preview.textContent = '📝 ' + s.note;
+        li.appendChild(preview);
+      }
+
+      if (s.id) {
+        var noteToggleBtn = document.createElement('button');
+        noteToggleBtn.type = 'button';
+        noteToggleBtn.className = 'mini-btn note-toggle-btn';
+        noteToggleBtn.textContent = s.note ? '✏️ EDIT NOTE' : '📝 ADD NOTE';
+        li.appendChild(noteToggleBtn);
+
+        var editor = document.createElement('div');
+        editor.className = 'note-editor';
+        editor.hidden = true;
+        var textarea = document.createElement('textarea');
+        textarea.className = 'note-textarea';
+        textarea.maxLength = 300;
+        textarea.rows = 2;
+        textarea.value = s.note || '';
+        textarea.placeholder = 'What did you cover? Anything to remember next time?';
+        var saveNoteBtn = document.createElement('button');
+        saveNoteBtn.type = 'button';
+        saveNoteBtn.className = 'mini-btn note-save-btn';
+        saveNoteBtn.textContent = 'SAVE NOTE';
+        editor.appendChild(textarea);
+        editor.appendChild(saveNoteBtn);
+        li.appendChild(editor);
+      }
+
       sessionLogEl.appendChild(li);
     });
+  }
+
+  sessionLogEl.addEventListener('click', function (e) {
+    var toggleBtn = e.target.closest('.note-toggle-btn');
+    if (toggleBtn) {
+      var li = toggleBtn.closest('li');
+      var editor = li.querySelector('.note-editor');
+      editor.hidden = !editor.hidden;
+      if (!editor.hidden) {
+        var ta = editor.querySelector('.note-textarea');
+        ta.focus();
+      }
+      return;
+    }
+    var saveBtn = e.target.closest('.note-save-btn');
+    if (saveBtn) {
+      var saveLi = saveBtn.closest('li');
+      var id = saveLi.getAttribute('data-id');
+      var textareaEl = saveLi.querySelector('.note-textarea');
+      saveNoteForSession(id, textareaEl.value);
+    }
+  });
+
+  function makeSessionId() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
   }
 
   function logSession(subject, durationSeconds, colorTag) {
     var sessions = loadSessions();
     var now = new Date();
     sessions.unshift({
+      id: makeSessionId(),
       subject: subject,
       durationSeconds: durationSeconds,
       colorTag: colorTag || 'pink',
       dateISO: todayISO(),
       timestamp: now.getTime(),
-      completedAt: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      completedAt: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      note: ''
     });
     saveSessions(sessions);
     renderSessions(true);
     return renderStats();
+  }
+
+  function saveNoteForSession(id, text) {
+    var sessions = loadSessions();
+    var target = null;
+    for (var i = 0; i < sessions.length; i++) {
+      if (sessions[i].id === id) { target = sessions[i]; break; }
+    }
+    if (!target) return;
+    target.note = text.trim();
+    saveSessions(sessions);
+    renderSessions();
   }
 
   logToggle.addEventListener('click', function () {
