@@ -462,19 +462,41 @@
     background: var(--navy-light);
     border: 2px solid var(--ink);
     box-shadow: 3px 3px 0 var(--shadow-hard);
-    padding: 8px 10px;
     margin-bottom: 8px;
     font-size: 17px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    overflow: hidden;
   }
+
+  .log-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    margin: 0;
+    min-height: 44px;
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    color: var(--paper);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .log-summary:active { transform: none; }
 
   #sessionLog li .log-subject {
     color: var(--neon-yellow);
     font-size: 18px;
     display: flex;
     align-items: center;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .log-chip {
@@ -486,10 +508,33 @@
     flex-shrink: 0;
   }
 
-  #sessionLog li .log-meta {
+  .log-meta-inline {
     color: var(--paper-dim);
-    font-size: 15px;
+    font-size: 14px;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
+
+  .log-entry-chevron {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: var(--neon-yellow);
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+
+  .log-summary[aria-expanded="true"] .log-entry-chevron {
+    transform: rotate(180deg);
+  }
+
+  .log-details {
+    padding: 0 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .log-details[hidden] { display: none; }
 
   .log-note-preview {
     font-size: 14px;
@@ -542,7 +587,7 @@
     font-size: 16px;
     color: var(--paper-dim);
     text-align: center;
-    padding: 6px 0;
+    padding: 10px;
   }
 
   .settings-panel {
@@ -744,17 +789,6 @@
     </div>
 
     <div class="field">
-      <label>Color Tag</label>
-      <div class="color-row" id="colorRow">
-        <button type="button" class="color-swatch" data-color="pink" style="background:var(--neon-pink)" aria-label="Pink tag"></button>
-        <button type="button" class="color-swatch" data-color="cyan" style="background:var(--neon-cyan)" aria-label="Cyan tag"></button>
-        <button type="button" class="color-swatch" data-color="green" style="background:var(--neon-green)" aria-label="Green tag"></button>
-        <button type="button" class="color-swatch" data-color="orange" style="background:var(--neon-orange)" aria-label="Orange tag"></button>
-        <button type="button" class="color-swatch" data-color="yellow" style="background:var(--neon-yellow)" aria-label="Yellow tag"></button>
-      </div>
-    </div>
-
-    <div class="field">
       <label class="switch-label">
         <input type="checkbox" id="pomodoroToggle">
         <span>🍅 Pomodoro Mode (auto focus/break cycles)</span>
@@ -801,10 +835,20 @@
 
   <section class="log-section">
     <button type="button" class="log-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsPanel">
-      <span>⚙ ALARM SETTINGS</span>
+      <span>⚙ SETTINGS</span>
       <span class="chevron" aria-hidden="true">▾</span>
     </button>
     <div id="settingsPanel" class="settings-panel" hidden>
+      <div class="field">
+        <label>Color Tag</label>
+        <div class="color-row" id="colorRow">
+          <button type="button" class="color-swatch" data-color="pink" style="background:var(--neon-pink)" aria-label="Pink tag"></button>
+          <button type="button" class="color-swatch" data-color="cyan" style="background:var(--neon-cyan)" aria-label="Cyan tag"></button>
+          <button type="button" class="color-swatch" data-color="green" style="background:var(--neon-green)" aria-label="Green tag"></button>
+          <button type="button" class="color-swatch" data-color="orange" style="background:var(--neon-orange)" aria-label="Orange tag"></button>
+          <button type="button" class="color-swatch" data-color="yellow" style="background:var(--neon-yellow)" aria-label="Yellow tag"></button>
+        </div>
+      </div>
       <div class="field">
         <label for="alarmToneSelect">Alarm Tone</label>
         <select id="alarmToneSelect">
@@ -1370,9 +1414,15 @@
     sessions.forEach(function (s, index) {
       var li = document.createElement('li');
       li.setAttribute('data-id', s.id || '');
-      if (highlightFirst && index === 0) li.className = 'new-entry';
+      var expandByDefault = highlightFirst && index === 0;
+      if (expandByDefault) li.className = 'new-entry';
 
-      var subj = document.createElement('div');
+      var summary = document.createElement('button');
+      summary.type = 'button';
+      summary.className = 'log-summary';
+      summary.setAttribute('aria-expanded', expandByDefault ? 'true' : 'false');
+
+      var subj = document.createElement('span');
       subj.className = 'log-subject';
       var chip = document.createElement('span');
       chip.className = 'log-chip';
@@ -1380,18 +1430,29 @@
       subj.appendChild(chip);
       subj.appendChild(document.createTextNode(s.subject));
 
-      var meta = document.createElement('div');
-      meta.className = 'log-meta';
-      meta.textContent = formatTime(s.durationSeconds) + ' · completed ' + s.completedAt;
+      var meta = document.createElement('span');
+      meta.className = 'log-meta-inline';
+      meta.textContent = formatTime(s.durationSeconds) + ' · ' + s.completedAt;
 
-      li.appendChild(subj);
-      li.appendChild(meta);
+      var chevron = document.createElement('span');
+      chevron.className = 'chevron log-entry-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.textContent = '▾';
+
+      summary.appendChild(subj);
+      summary.appendChild(meta);
+      summary.appendChild(chevron);
+      li.appendChild(summary);
+
+      var details = document.createElement('div');
+      details.className = 'log-details';
+      details.hidden = !expandByDefault;
 
       if (s.note) {
         var preview = document.createElement('div');
         preview.className = 'log-note-preview';
         preview.textContent = '📝 ' + s.note;
-        li.appendChild(preview);
+        details.appendChild(preview);
       }
 
       if (s.id) {
@@ -1399,7 +1460,7 @@
         noteToggleBtn.type = 'button';
         noteToggleBtn.className = 'mini-btn note-toggle-btn';
         noteToggleBtn.textContent = s.note ? '✏️ EDIT NOTE' : '📝 ADD NOTE';
-        li.appendChild(noteToggleBtn);
+        details.appendChild(noteToggleBtn);
 
         var editor = document.createElement('div');
         editor.className = 'note-editor';
@@ -1416,14 +1477,24 @@
         saveNoteBtn.textContent = 'SAVE NOTE';
         editor.appendChild(textarea);
         editor.appendChild(saveNoteBtn);
-        li.appendChild(editor);
+        details.appendChild(editor);
       }
 
+      li.appendChild(details);
       sessionLogEl.appendChild(li);
     });
   }
 
   sessionLogEl.addEventListener('click', function (e) {
+    var summaryBtn = e.target.closest('.log-summary');
+    if (summaryBtn) {
+      var summaryLi = summaryBtn.closest('li');
+      var details = summaryLi.querySelector('.log-details');
+      var willOpen = details.hidden;
+      details.hidden = !willOpen;
+      summaryBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      return;
+    }
     var toggleBtn = e.target.closest('.note-toggle-btn');
     if (toggleBtn) {
       var li = toggleBtn.closest('li');
